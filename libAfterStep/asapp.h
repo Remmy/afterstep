@@ -15,9 +15,9 @@
 #include "sun_headers.h"
 #endif
 
-#if defined(__alpha)
-/*#include "alpha_header.h"*/
-#endif /* NEEDS_ALPHA_HEADER */
+/*#if defined(__alpha)
+#include "alpha_header.h"
+#endif  NEEDS_ALPHA_HEADER */
 
 /* Some people say that AIX and AIXV3 need 3 preceding underscores, other say
  * no. I'll do both */
@@ -90,10 +90,12 @@ struct ASDatabase;
 #define WAIT_CHILDREN(pstatus)  (*pstatus=-1)
 #endif
 
+#define SESSION_ID_ENVVAR  "DESKTOP_AUTOSTART_ID"		
+
 struct charstring
 {
-    char key;
-    int value;
+	char key;
+	int value;
 };
 
 /*********************************************************************************/
@@ -102,14 +104,14 @@ struct charstring
 
 typedef struct CommandLineOpts
 {
-    char *short_opt, *long_opt;
-    char *descr1, *descr2 ;
-    void (*handler)( char *argv, void *trg, long param );
-    void *trg;
-    long param;
+	char *short_opt, *long_opt;
+	char *descr1, *descr2 ;
+	void (*handler)( char *argv, void *trg, long param );
+	void *trg;
+	long param;
 #define CMO_HasArgs     (0x01<<0)
 #define CMO_IsParam     (0x01<<1)
-    ASFlagType flags;
+	ASFlagType flags;
 }CommandLineOpts;
 
 #define STANDARD_CMDL_OPTS_NUM 22
@@ -161,9 +163,9 @@ typedef struct ASProgArgs
 #define OPTION_DESCR2_FORMAT			OPTION_NOSHORT_FORMAT "                            %s.\n"
 #define OPTION_PARAM_FORMAT		         "  %-20.20s       - %s.\n"
 
-    ASFlagType mask ;    /* mask, specifying what options are not supported */
+	ASFlagType mask ;    /* mask, specifying what options are not supported */
 
-    char      *override_config;
+	char      *override_config;
 	char 	  *override_home, *override_share ;
 	char 	  *override_look, *override_feel ;
 
@@ -171,15 +173,15 @@ typedef struct ASProgArgs
 
 	ASFlagType flags ;   /* debugging/restarting/single, etc - see afterstep.h */
 
-    int        verbosity_level ;
+	int        verbosity_level ;
 
 	Window src_window;  /* window in which action accured that ended up launching us */
 	int    src_context; /* context in window in which action accured that ended up launching us */
 #ifdef DEBUG_TRACE_X
-    char      *trace_calls ;
+	char      *trace_calls ;
 #endif
-    char      *log_file ;
-    char      *locale ;
+	char      *log_file ;
+	char      *locale ;
 
 	ASGeometry geometry;
 	int gravity ;
@@ -218,6 +220,8 @@ typedef struct ASEnvironment
   char *gtkrc_path ;
   char *gtkrc20_path ;
 	char *IconTheme;
+	char *IconThemePath;	
+	char *IconThemeFallback;	
 }ASEnvironment;
 
 /*
@@ -235,6 +239,7 @@ void set_environment_tool_from_list( ASEnvironment *e, ASToolType type, char ** 
 void destroy_asenvironment( ASEnvironment **penv );
 struct ASImage;
 struct ASImage *load_environment_icon (const char* category, const char* name, int desired_size);
+struct ASImage *load_environment_icon_any (const char *filename,	int desired_size);
 
 /***********************************************************************************/
 /* general purpose application launcher :                                          */
@@ -255,6 +260,11 @@ struct ASImage *load_environment_icon (const char* category, const char* name, i
 
 int check_singleton_child (int singleton_id, Bool kill_it_to_death);
 int spawn_child( const char *cmd, int singleton_id, int screen, const char *orig_display, Window w, int context, Bool do_fork, Bool pass_args, ... );
+int spawn_download (const char *url, const char* cachedFileName);
+Bool check_download_complete (int pid, const char *cachedFileName, int *sizeDownloaded, int *size);
+Bool is_url (const char *url);
+char *make_log_name (const char *FileName);
+
 
 /***********************************************************************************/
 /* GLOBALS :                                                                       */

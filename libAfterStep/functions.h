@@ -22,6 +22,11 @@ typedef enum FunctionCode{
   F_BEEP,
   F_QUIT,
   F_RESTART,
+	F_SYSTEM_SHUTDOWN,
+	F_LOGOUT,
+	F_QUIT_WM,
+	F_SUSPEND,
+	F_HIBERNATE,
   F_REFRESH,
 #ifndef NO_VIRTUAL
   F_SCROLL,
@@ -46,6 +51,7 @@ typedef enum FunctionCode{
   F_MINIPIXMAP,
   F_SMALL_MINIPIXMAP,
   F_LARGE_MINIPIXMAP,
+	F_Preview,
   F_DesktopEntry,
   F_EXEC,
   F_ExecInDir,
@@ -82,8 +88,9 @@ typedef enum FunctionCode{
   F_TAKE_SCREENSHOT,
   F_SET,
   F_Test,    /* for debugging purposes to be able to test new features before actually
-              * enabling them for user */
-			 
+			  * enabling them for user */
+	F_Remap,
+
   /* this functions require window as aparameter */
   F_WINDOW_FUNC_START,
   F_MOVE,
@@ -130,7 +137,7 @@ typedef enum FunctionCode{
   F_RAISE_IT,
   F_Folder,
   /* this one is treated by AS same as F_EXEC but it really
-     should be used only in Wharf config : */
+	 should be used only in Wharf config : */
   F_SWALLOW_FUNC_START,
   F_Swallow = F_SWALLOW_FUNC_START,
   F_MaxSwallow,
@@ -152,8 +159,17 @@ F_FUNCTIONS_NUM
 #define	USES_NUMVALS 	(1<<5)
 
 #define FUNC_ERR_START		-100
-#define FUNC_ERR_NO_NAME	-100 
+#define FUNC_ERR_NO_NAME	-100
 #define FUNC_ERR_NO_TEXT	-101
+
+typedef enum {
+	MINIPIXMAP_Icon = 0,
+	MINIPIXMAP_Preview,
+	MINIPIXMAP_TypesNum
+} MinipixmapTypes;
+
+#define GetMinipixmapType(f) (((f) >= F_MINIPIXMAP && (f) <= F_LARGE_MINIPIXMAP)? 0 : ((f)==F_Preview) ? 1 : 2)
+#define IsMinipixmap(t)  ((t)< MINIPIXMAP_TypesNum)
 
 
 #define IsWindowFunc(f)  ((f)>F_WINDOW_FUNC_START&&(f)<F_MODULE_FUNC_START)
@@ -162,7 +178,7 @@ F_FUNCTIONS_NUM
 #define IsValidFunc(f)   ((f)>=0&&(f)<F_FUNCTIONS_NUM)
 #define IsSwallowFunc(f) ((f)>=F_SWALLOW_FUNC_START&&(f)<F_SWALLOW_FUNC_END)
 #define IsExecFunc(f)    ((f)>= F_EXEC && (f)< F_KILLMODULEBYNAME)
-#define IsMinipixmapFunc(f) ((f) >= F_MINIPIXMAP && (f) <= F_LARGE_MINIPIXMAP )
+#define IsMinipixmapFunc(f)  (IsMinipixmap(GetMinipixmapType(f)))
 
 #ifndef NO_WINDOWLIST
 #define IsDynamicPopup(f)	((f) >= F_WINDOWLIST     && (f) <= F_RESTARTMODULELIST)
@@ -176,39 +192,45 @@ void ChangeWarpIndex(const long, FunctionCode);
 
 typedef struct FunctionData
 {
-    CARD32 func;       /* AfterStep built in function */
-    INT32 func_val[MAX_FUNC_ARGS];
+	CARD32 func;       /* AfterStep built in function */
+	INT32 func_val[MAX_FUNC_ARGS];
 #define DEFAULT_MAXIMIZE    100
 #define DEFAULT_OTHERS      0
-    INT32 unit_val[MAX_FUNC_ARGS];
-    char unit[MAX_FUNC_ARGS] ;
+	INT32 unit_val[MAX_FUNC_ARGS];
+	char unit[MAX_FUNC_ARGS] ;
 #define APPLY_VALUE_UNIT(size,value,unit) (((unit)>0)?(value)*(unit):((value)*(size))/100)
 
 #define DEFAULT_MAXIMIZE    100
 
-    char* name ;
-    char* text ;
+	char* name ;
+	char* text ;
 #define COMPLEX_FUNCTION_NAME(pd)  (((pd)->text)?(pd)->text:(pd)->name)
-    char hotkey ;
-    void* popup ; /* actually a MenuRoot pointer */
+	char hotkey ;
+	void* popup ; /* actually a MenuRoot pointer */
 	int name_encoding ;
 } FunctionData ;
 
 typedef struct ComplexFunction
 {
-    unsigned long   magic;
-    char           *name ;
+	unsigned long   magic;
+	char           *name ;
 
-    FunctionData   *items;
-    unsigned int    items_num;
+	FunctionData   *items;
+	unsigned int    items_num;
 }ComplexFunction;
+
+typedef struct {
+		char                 *filename;         /* we always read filename from config !! */
+		struct ASImage       *image;
+		int     							loadCount;
+}MinipixmapData;
 
 typedef struct MenuDataItem
   {
 
-    unsigned long   magic;
-    struct MenuDataItem  *next;  /* next menu item */
-    struct MenuDataItem  *prev;  /* prev menu item */
+	unsigned long   magic;
+	struct MenuDataItem  *next;  /* next menu item */
+	struct MenuDataItem  *prev;  /* prev menu item */
 
 /* same flags are used for both MenuDataItem and MenuData */
 
@@ -218,28 +240,31 @@ typedef struct MenuDataItem
 #define MD_NameIsUTF8		  	(0x01<<16)
 #define MD_CommentIsUTF8	  	(0x01<<17)
 /* can't think of anything else atm - maybe add something later ? */
-    ASFlagType            flags ;
-    struct FunctionData  *fdata ;
-    char                 *minipixmap ;         /* we always read filename from config !! */
-    struct ASImage       *minipixmap_image ;
-    char  *item;         /* the character string displayed on left */
-    char  *item2;		 /* the character string displayed on right */
+
+	ASFlagType            flags ;
+	struct FunctionData  *fdata ;
+	MinipixmapData minipixmap[MINIPIXMAP_TypesNum];
+
+	char                 *preview ;         /* we always read filename from config !! */
+	struct ASImage       *preview_image ;
+	char  *item;         /* the character string displayed on left */
+	char  *item2;		 /* the character string displayed on right */
 	char  *comment ;
 
-    time_t                last_used_time ;
+	time_t                last_used_time ;
 }MenuDataItem;
 
 typedef struct MenuData
 {
-    unsigned long    magic;
-    struct MenuDataItem *first; /* first item in menu */
-    struct MenuDataItem *last;  /* last item in menu */
-    short items_num;        /* number of items in the menu */
+	unsigned long    magic;
+	struct MenuDataItem *first; /* first item in menu */
+	struct MenuDataItem *last;  /* last item in menu */
+	short items_num;        /* number of items in the menu */
 
-    ASFlagType            flags ; 
-    char  *name;         /* name of root */
+	ASFlagType            flags ;
+	char  *name;         /* name of root */
 	char  *comment ;
-	int    recent_items ;   /*  negative value indicates that default, 
+	int    recent_items ;   /*  negative value indicates that default,
 								set in feel should be used */
 
 }MenuData;
@@ -279,8 +304,12 @@ typedef void (*as_function_handler)(struct FunctionData *data, struct ASEvent *e
 
 struct TermDef *txt2fterm (const char *txt, int quiet);
 int txt2func (const char *text, FunctionData * fdata, int quiet);
+int txt2func_code (const char *text);
 int parse_func (const char *text, FunctionData * data, int quiet);
 FunctionData *String2Func ( const char *string, FunctionData *p_fdata, Bool quiet );
+
+/* changes function meaning in the parsing table, has no effect on already parsed function data */
+FunctionCode change_func_code (const char *func_name, FunctionCode new_code);
 
 void init_func_data (FunctionData * data);
 void copy_func_data (FunctionData * dst, FunctionData * src);
@@ -308,14 +337,17 @@ int parse_menu_item_name (MenuDataItem * item, char **name);
 
 Bool check_fdata_availability( FunctionData *fdata );
 
-MenuDataItem * add_menu_fdata_item( MenuData *menu, FunctionData *fdata, char *minipixmap, struct ASImage *img );
+MenuDataItem * add_menu_fdata_item( MenuData *menu, FunctionData *fdata, MinipixmapData *minipixmaps);
 MenuDataItem * menu_data_item_from_func (MenuData * menu, FunctionData * fdata, Bool do_check_availability);
-struct ASImage *check_scale_menu_pmap( struct ASImage *im, ASFlagType flags ); 
+struct ASImage *check_scale_menu_pmap( struct ASImage *im, ASFlagType flags );
 void free_menu_pmaps( MenuData *menu);
+void load_menuitem_pmap (MenuDataItem *mdi, MinipixmapTypes type, Bool force);
 void reload_menu_pmaps( MenuData *menu, Bool force  );
 
 /* usefull to qsort array of FunctionData pointers : */
 int compare_func_data_name(const void *a, const void *b);
+
+Bool is_web_background (FunctionData *fdata);
 
 
 void print_func_data(const char *file, const char *func, int line, FunctionData *data);

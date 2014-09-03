@@ -7,6 +7,9 @@ order 8
 #
 #	for *.desktop files with the following Categories:
 
+exclude         X-GNOME-Settings-Panel
+exclude         GNOME
+exclude         "X-XfceSettingsDialog"
 FolderReference "System Settings"
 Category        "Settings"
 Category        "SystemSetup"

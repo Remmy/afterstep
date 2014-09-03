@@ -12,17 +12,17 @@ OBJS            = add_window.o afterstep.o aswindow.o \
 
 PROG		= afterstep
 
-INCS_PRIVATE	= @DBUS1_CFLAGS@ -DDBUS_API_SUBJECT_TO_CHANGE
+INCS_PRIVATE	=  @GIOLIB_INCLUDES@ @DBUS1_CFLAGS@ -DDBUS_API_SUBJECT_TO_CHANGE
 
 LIBS_PRIVATE      = $(LIB_AFTERCONF) $(LIB_AFTERSTEP) \
-					$(LIB_AFTERIMAGE) $(LIB_AFTERBASE) $(LIBS_AFTERIMAGE) @DBUS1_LIBS@
+					$(LIB_AFTERIMAGE) $(LIB_AFTERBASE) @GIOLIB_LIBS@ $(LIBS_AFTERIMAGE) @DBUS1_LIBS@
 LIBS_DEPEND     = $(LIB_AFTERBASE) $(LIB_AFTERIMAGE) $(LIB_AFTERSTEP) \
 				  $(LIB_AFTERCONF)
 
 @MAKEFILECOMMON@
 
-$(PROG):        $(OBJS) $(LIBS_DEPEND)
-		$(CC) $(OBJS) $(LIBS_ALL) -o $(@)
+$(PROG):	$(OBJS) $(LIBS_DEPEND) Makefile show_flags_cc
+		@$(CC) $(OBJS) $(LIBS_ALL) -o $(@)
 
 AfterStepConfig.o:	configure.c
 		$(CC) $(CCFLAGS) $(EXTRA_DEFINES) -DAFTERSTEP_CONFIG_TEST $(INCLUDES) $(EXTRA_INCLUDES) -c configure.c -o AfterStepConfig.o
@@ -37,9 +37,27 @@ test_name_change:	test_name_change.o
 		$(CC) test_name_change.o $(USER_LD_FLAGS) $(LIBS_ALL) -o test_name_change
 
 
-module.clean:
-		
+install.alternative:
+	@if update-alternatives --version > /dev/null 2>&1 ; then       \
+		if `update-alternatives --install $(DESTDIR)/usr/bin/x-window-manager x-window-manager $(AFTER_BIN_DIR)/afterstep 100`; then\
+			echo "added AfterStep as an x-window-manager alternative"; \
+		fi ; fi
 
-install:	install.bin
+
+module.clean:
+
+
+install:	install.bin install.alternative
 
 uninstall:	uninstall.bin
+
+
+test_asdbus.o: dbus.c
+		$(CC) $(CCFLAGS) $(EXTRA_DEFINES) -DTEST_AS_DBUS $(INCLUDES) $(EXTRA_INCLUDES) -c dbus.c -o test_asdbus.o
+
+test_asdbus:	test_asdbus.o
+		$(CC) test_asdbus.o $(LIBS_ALL) -o test_asdbus
+
+
+install.man:
+uninstall.man:

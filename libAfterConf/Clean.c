@@ -31,13 +31,14 @@
 #include "afterconf.h"
 
 
-TermDef       CleanTerms[] = {
-	{TF_INDEXED, "", 0, TT_FLAG, CLEAN_Clean_ID, &DummyFuncSyntax},
-	{0, NULL, 0, 0, 0}						   /* end of structure */
+TermDef CleanTerms[] = {
+	{TF_INDEXED, "", 0, TT_FLAG, CLEAN_Clean_ID, &DummyFuncSyntax}
+	,
+	{0, NULL, 0, 0, 0}						/* end of structure */
 
 };
 
-SyntaxDef     CleanSyntax = {
+SyntaxDef CleanSyntax = {
 	'\n',
 	'\0',
 	CleanTerms,
@@ -53,32 +54,32 @@ SyntaxDef     CleanSyntax = {
 };
 
 
-CleanConfig *
-CreateCleanConfig ()
+CleanConfig *CreateCleanConfig ()
 {
-	CleanConfig *config = (CleanConfig *) safecalloc (1, sizeof (CleanConfig));
+	CleanConfig *config =
+			(CleanConfig *) safecalloc (1, sizeof (CleanConfig));
+
 	return config;
 }
 
-void
-DestroyCleanConfig (CleanConfig * config)
+void DestroyCleanConfig (CleanConfig * config)
 {
 	DestroyFreeStorage (&(config->more_stuff));
 	free (config);
 }
 
-CleanConfig *
-ParseCleanOptions (const char *filename, char *myname)
+CleanConfig *ParseCleanOptions (const char *filename, char *myname)
 {
-	ConfigData cd ;
-	ConfigDef    *CleanConfigReader;
+	ConfigData cd;
+	ConfigDef *CleanConfigReader;
 	CleanConfig *config = CreateCleanConfig ();
 
 	FreeStorageElem *Storage = NULL, *pCurr;
-	ConfigItem    item;
+	ConfigItem item;
 
-	cd.filename = filename ;
-	CleanConfigReader = InitConfigReader (myname, &CleanSyntax, CDT_Filename, cd, NULL);
+	cd.filename = filename;
+	CleanConfigReader =
+			InitConfigReader (myname, &CleanSyntax, CDT_Filename, cd, NULL);
 
 	if (!CleanConfigReader)
 		return config;
@@ -90,8 +91,7 @@ ParseCleanOptions (const char *filename, char *myname)
 	/* getting rid of all the crap first */
 	StorageCleanUp (&Storage, &(config->more_stuff), CF_DISABLED_OPTION);
 
-	for (pCurr = Storage; pCurr; pCurr = pCurr->next)
-	{
+	for (pCurr = Storage; pCurr; pCurr = pCurr->next) {
 		if (pCurr->term == NULL)
 			continue;
 
@@ -99,12 +99,11 @@ ParseCleanOptions (const char *filename, char *myname)
 			if (!ReadConfigItem (&item, pCurr))
 				continue;
 
-			switch (pCurr->term->id)
-			{
-			 case CLEAN_Clean_ID:
-				 break;
-			 default:
-				 item.ok_to_free = 1;
+			switch (pCurr->term->id) {
+			case CLEAN_Clean_ID:
+				break;
+			default:
+				item.ok_to_free = 1;
 			}
 		}
 	}
@@ -123,17 +122,19 @@ ParseCleanOptions (const char *filename, char *myname)
  *
  */
 int
-WriteCleanOptions (const char *filename, char *myname, CleanConfig * config, unsigned long flags)
+WriteCleanOptions (const char *filename, char *myname,
+									 CleanConfig * config, unsigned long flags)
 {
-	ConfigDef    *CleanConfigWriter = NULL;
-	FreeStorageElem *Storage = NULL/*, **tail = &Storage*/;
-	ConfigData cd ;
+	ConfigDef *CleanConfigWriter = NULL;
+	FreeStorageElem *Storage = NULL /*, **tail = &Storage */ ;
+	ConfigData cd;
 
 	if (config == NULL)
 		return 1;
 
-	cd.filename = filename ;
-	if ((CleanConfigWriter = InitConfigWriter (myname, &CleanSyntax, CDT_Filename, cd)) == NULL)
+	cd.filename = filename;
+	if ((CleanConfigWriter =
+			 InitConfigWriter (myname, &CleanSyntax, CDT_Filename, cd)) == NULL)
 		return 2;
 
 	CopyFreeStorage (&Storage, config->more_stuff);
@@ -148,9 +149,9 @@ WriteCleanOptions (const char *filename, char *myname, CleanConfig * config, uns
 	DestroyFreeStorage (&Storage);
 	DestroyConfig (CleanConfigWriter);
 
-	if (Storage)
-	{
-		show_error ("Config Writing warning: Not all Free Storage discarded! Trying again...");
+	if (Storage) {
+		show_error
+				("Config Writing warning: Not all Free Storage discarded! Trying again...");
 		DestroyFreeStorage (&Storage);
 		show_error ((Storage != NULL) ? " failed." : " success.");
 	}

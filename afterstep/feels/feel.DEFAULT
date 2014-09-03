@@ -335,7 +335,7 @@ Mouse 2         6       A       Maximize
 Mouse 3         6       A       Maximize
 Mouse 1         7       A       Delete
 Mouse 2         7       A       WindowList 2
-Mouse 3         7       A       PopUp "Window menu" Window
+Mouse 3         7       A       PopUp "Window Menu" Window
 Mouse 1         FS      A       Function "Resize-or-Top"
 Mouse 2         FS      A       Function "Resize-or-Top"
 Mouse 3         FS      A       Function "Resize-or-Top"
@@ -393,7 +393,7 @@ Key F9          A       SC      Maximize
 Key F10         A       SC      PutOnBack
 #Key F11         A       SC      Module "Find" Form FINDForm
 Key F11         A       SC      WindowList
-Key F12         A       SC      PopUp "StartMenu"  0
+Key F12         A       SC      PopUp "Start Menu"  0
 
 # GWCommand
 Key 	j 	A	CM	Exec "-" GWCommand jump
@@ -446,8 +446,7 @@ Key Sys_Req     A       A       GetHelp
 # One should note that it is the "asterisk key" that is bound, not the "* key".
 # To get the keymap table : $ xmodmap -pke
 # Binding the asterisk key + Ctrl to display a term window
-Key asterisk    A       C       Exec "aterm" exec aterm
-#Key asterisk    A       C       Exec "rxvt" exec rxvt
+Key asterisk    A       C       Exec "x-terminal-emulator" exec x-terminal-emulator
 
 ################################################################################
 # XMMS keybindings

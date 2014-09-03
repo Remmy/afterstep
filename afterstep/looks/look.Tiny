@@ -208,6 +208,17 @@ MyStyle "*WinListBalloon"
 	Inherit "TitleButtonBalloon"
 ~MyStyle
 
+#----------ASMount MyStyles---------#
+
+MyStyle "*ASMountMounted"
+		Inherit      "*WharfFocusedTile"
+   	Font 	       DefaultSansBold.ttf-9
+ ~MyStyle
+
+MyStyle "*ASMountUnmounted"
+		Inherit      "*WharfTile"
+   	Font 	       DefaultSans.ttf-9
+ ~MyStyle
 #----------aterm MyStyles---------#
 
 MyStyle "*aterm"
@@ -262,6 +273,15 @@ TitleButtonBalloonYOffset	10
 TitleButtonBalloonDelay		200
 TitleButtonBalloonCloseDelay	2000
 TitleButtonBalloonStyle 	"TitleButtonBalloon"
+
+MenuBalloons
+MenuBalloonBorderHilite	Right,Bottom
+MenuBalloonXOffset	100
+MenuBalloonYOffset	-50
+MenuBalloonDelay		2000
+MenuBalloonCloseDelay	10000
+MenuBalloonStyle 	"menu_hilite_style"
+
 
 #----------Window MyStyles---------#
 

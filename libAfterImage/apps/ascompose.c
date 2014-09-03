@@ -47,6 +47,10 @@
 #include "../afterbase.h"
 #include "../afterimage.h"
 #include "common.h"
+#if defined(DEBUG_ALLOCS)
+#undef SHAPE
+#endif
+
 
 #if !defined(X_DISPLAY_MISSING)
 int asvisual_empty_XErrorHandler (Display * dpy, XErrorEvent * event);
@@ -1039,7 +1043,6 @@ Window showimage(ASImage* im, Bool looping, Window main_window, ASComposeWinProp
 
 	if (props->canvas == None)
 	{
-		int depth = 0;
 		int pmap_width = width;
 		int pmap_height = height;
 		GC gc = NULL;

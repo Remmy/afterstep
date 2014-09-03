@@ -1,2 +1,2 @@
-Quit "Close this session"
-SmallMiniPixmap "normal/RedLight"
+Logout "End this session"
+SmallMiniPixmap "mini/Logout"

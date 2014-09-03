@@ -19,12 +19,16 @@ uninstall.bin:
 		done
 
 clean:		module.clean
-		$(RMF) $(PROG) $(PROG).exe *.o *~ *% *.bak \#* core log
+		$(RMF) show_flags_cc $(PROG) $(PROG).exe *.o *~ *% *.bak \#* core log
 
 distclean:	clean
 		$(RMF) *.orig Makefile
 
 install.lib:	@LIBPROG@ @LIBINSTALL@
+
+install.man:
+install.data:
+
 
 install.script:
 		@for i in $(SCRIPTS); do \
@@ -42,11 +46,13 @@ indent:
 		@SRCS=`echo "$(OBJS) " | sed "s/.o /.c /g"`; \
 		if test "x$$SRCS" == "x"; then exit; fi; \
 		for i in $$SRCS; do \
-		  if (indent -di14 -ts4 -i4 -l100 -lc80 -bad -nbbb -bli0 -c48 -cd48 -ce -cli1 -ncs -nbs -nbbo -hnl < $$i > /tmp/$$i); then \
+#		  if (indent -di14 -ts4 -i4 -l100 -lc80 -bad -nbbb -bli0 -c48 -cd48 -ce -cli1 -ncs -nbs -nbbo -hnl < $$i > /tmp/$$i); then \
+		  if (indent -kr -ts2 -ut -bs -hnl -i2 -lc80 -lps -nbc -nbfda -ncs -nprs -pcs -pi2 -saf -sai -saw -ss < $$i > /tmp/$$i); then \
 		    echo "indent $$i"; \
 		    mv /tmp/$$i $$i; \
 		  fi; \
 		done
+
 
 deps:
 		echo -n > .depend ; \
@@ -90,8 +96,14 @@ deps:
 
 .SUFFIXES:	.c .cxx .h .fl .man .o .z .s $(EXEEXT)
 
+show_flags_cc: $(OBJS)
+		@touch show_flags_cc ; \
+		echo "Compiled with :$(CC) $(CCFLAGS) $(EXTRA_DEFINES) $(INCLUDES) $(EXTRA_INCLUDES)"; \
+		echo "and Libraries :$(LIBS_ALL)"
+
 .c.o:
-		$(CC) $(CCFLAGS) $(EXTRA_DEFINES) $(INCLUDES) $(EXTRA_INCLUDES) -c $*.c
+		@echo " $*.c"
+		@$(CC) $(CCFLAGS) $(EXTRA_DEFINES) $(INCLUDES) $(EXTRA_INCLUDES) -c $*.c
 
 .cxx.o:
 		$(CXX) $(CCFLAGS) $(EXTRA_DEFINES) $(INCLUDES) $(EXTRA_INCLUDES) -c $*.cxx

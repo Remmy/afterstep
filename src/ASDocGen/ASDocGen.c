@@ -294,14 +294,16 @@ main (int argc, char **argv)
 	GlossaryName = UserGlossaryName ; 
 	TopicIndexName = UserTopicIndexName ; 
 
-	if( target_type < DocType_Source )
-	{	
+	if( target_type < DocType_Source ) {	
 		time_t curtime;
-    	struct tm *loctime;
+   	struct tm *loctime;
+		ASHashData hashd;
 		
 		DocBookVocabulary = create_ashash( 7, casestring_hash_value, casestring_compare, string_destroy_without_data );
-		for( i = 1 ; i < DOCBOOK_SUPPORTED_IDS ; ++i )
-			add_hash_item( DocBookVocabulary, AS_HASHABLE(SupportedDocBookTagInfo[i].tag), (void*)(SupportedDocBookTagInfo[i].tag_id));
+		for( i = 1 ; i < DOCBOOK_SUPPORTED_IDS ; ++i ) {
+			hashd.i = SupportedDocBookTagInfo[i].tag_id;
+			add_hash_item( DocBookVocabulary, AS_HASHABLE(SupportedDocBookTagInfo[i].tag), hashd.vptr);
+		}
 		
 		/* Get the current time. */
 		curtime = time (NULL);
@@ -747,11 +749,13 @@ gen_syntax_doc( const char *source_dir, const char *dest_dir, SyntaxDef *syntax,
 		i = 0 ;
 		if( syntax == NULL ) 
 		{	
-			convert_xml_file( syntax_dir, StandardSourceEntries[0], &state );
-			++i ;
+			if ( doc_type != DocType_NROFF ) {
+				convert_xml_file( syntax_dir, StandardSourceEntries[0], &state );
+				++i ;
+			}
 			convert_xml_file( syntax_dir, StandardOptionsEntry, &state );
 		}
-		for( ; i < OPENING_PARTS_END ; ++i ) 
+		for( ; doc_type != DocType_NROFF && i < OPENING_PARTS_END ; ++i ) 
 			convert_xml_file( syntax_dir, StandardSourceEntries[i], &state );
 		if( syntax ) 
 		{	

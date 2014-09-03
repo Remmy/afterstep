@@ -61,6 +61,7 @@ struct ASImage;
 #define AS_MoveresizeInProgress (1<<23)
 #define AS_Fullscreen			(1<<24)
 #define AS_Urgent				(1<<25)
+#define AS_Focused       (1<<26)
 
 
 /***********************************************************/
@@ -91,10 +92,10 @@ struct ASImage;
 #define AS_Module				(1<<23)
 #define AS_IgnoreConfigRequest  (1<<24)
 #define AS_IgnoreRestackRequest (1<<25)
-#define AS_WMDockApp			(1<<26)  /* res_class == "DockApp" and main 
+#define AS_WMDockApp			(1<<26)  /* res_class == "DockApp" and main
 										  * window is 1x1 (just don't ask why)
-										  * usually that means that icon 
-										  * window should be animated */ 
+										  * usually that means that icon
+										  * window should be animated */
 #define AS_UseCurrentViewport  	(1<<27)
 #define AS_WindowOpacity	   	(1<<28)
 #define AS_HitPager	   	(1<<29)
@@ -137,7 +138,7 @@ struct ASImage;
 #define AS_LayerHighest          AS_LayerMenu
 
 #define ASHINTS_STATIC_DATA 	 28     /* number of elements below that are not */
-                                        /* dynamic arrays */
+										/* dynamic arrays */
 
 typedef struct ASHints
 {
@@ -152,7 +153,7 @@ typedef struct ASHints
 
   /* these are copy of above done, when ASDatabase was last matched */
   char *matched_name0 ;
-  unsigned char matched_name0_encoding;  
+  unsigned char matched_name0_encoding;
 
   ASFlagType flags ;
   ASFlagType protocols ;
@@ -166,7 +167,7 @@ typedef struct ASHints
   ASFlagType client_icon_flags ;
   union { Window window; Pixmap pixmap; } icon ;
   Pixmap icon_mask ;
-  CARD32 *icon_argb ; 
+  CARD32 *icon_argb ;
   int icon_x, icon_y ;
   char *icon_file ;
 
@@ -177,7 +178,7 @@ typedef struct ASHints
   int base_width, base_height ;
   int gravity ;
   unsigned int border_width ; /* this is border width that will be used
-                               * in the frame decoration  - not to confuse with border width
+							   * in the frame decoration  - not to confuse with border width
 							   * of the initial withdrawn-to-normal transition  */
   unsigned int handle_width ;
   Window group_lead ;
@@ -199,6 +200,8 @@ typedef struct ASHints
   char *client_host ;    /* hostname of the computer on which client was executed */
   char *client_cmd  ;    /* preparsed command line of the client */
   CARD32 window_opacity ;
+
+  ASFlagType extwm_window_type;
 }
 ASHints;
 
@@ -212,22 +215,22 @@ ASHints;
 #define AS_HintChangeEverything ASFLAGS_EVERYTHING
 
 #define ASSTATUSHINTS_STATIC_DATA 11    /* number of elements below that are not */
-                                        /* dynamic arrays */
+										/* dynamic arrays */
 
 typedef struct ASStatusHints
 {
-    ASFlagType   flags ;
+	ASFlagType   flags ;
 
-    int             x, y;
-    unsigned int    width, height;
-    unsigned int    border_width ; /* this border width is needed only to calculate
-								    * reference point when we are starting up */
-    int    			viewport_x, viewport_y;
-    int             desktop ;
+	int             x, y;
+	unsigned int    width, height;
+	unsigned int    border_width ; /* this border width is needed only to calculate
+									* reference point when we are starting up */
+	int    			viewport_x, viewport_y;
+	int             desktop ;
 	int 			layer ;
 
-    /* get's set by window manager - not read from hints: */
-    Window          icon_window;
+	/* get's set by window manager - not read from hints: */
+	Window          icon_window;
 	unsigned int    frame_size[FRAME_SIDES];   /* size of the frame decoration */
 
 	unsigned int 	frame_border_width ;
@@ -240,14 +243,14 @@ typedef struct ASStatusHints
 typedef void (*hints_merge_func)(ASHints* clean, struct ASRawHints *raw,
 								 struct ASDatabaseRecord *db_rec,
 								 ASStatusHints *status,
-                                 ASFlagType what);  /* see HINT_ flags above */
+								 ASFlagType what);  /* see HINT_ flags above */
 
 typedef struct ASSupportedHints
 {
-    ASFlagType hints_flags ;  /* 0x1<<type */
+	ASFlagType hints_flags ;  /* 0x1<<type */
 	HintsTypes 	  hints_types[HINTS_Supported];
-    hints_merge_func merge_funcs[HINTS_Supported];
-    int 		  hints_num ;
+	hints_merge_func merge_funcs[HINTS_Supported];
+	int 		  hints_num ;
 }ASSupportedHints;
 
 
@@ -266,7 +269,7 @@ typedef struct ASSupportedHints
 
 unsigned char get_hint_name_encoding( ASHints *hints, int name_idx );
 ASHints *merge_hints( struct ASRawHints *raw, struct ASDatabase *db, ASStatusHints *status,
-                      ASSupportedHints *list, ASFlagType what, ASHints* reusable_memory, Window client );
+					  ASSupportedHints *list, ASFlagType what, ASHints* reusable_memory, Window client );
 void merge_asdb_hints (ASHints * clean, struct ASRawHints * raw, struct ASDatabaseRecord * db_rec, ASStatusHints * status, ASFlagType what);
 
 void check_motif_hints_sanity (struct MwmHints * motif_hints);
@@ -280,8 +283,8 @@ Bool update_protocols( struct ScreenInfo *scr, Window w, ASSupportedHints *list,
 Bool update_colormaps( struct ScreenInfo *scr, Window w, ASSupportedHints *list, CARD32 **pcmap_windows );
 Bool update_property_hints( Window w, Atom property, ASHints *hints, ASStatusHints *status );
 Bool update_property_hints_manager( Window w, Atom property, ASSupportedHints *list,
-                                    struct ASDatabase * db, ASHints *hints, ASStatusHints *status );
-void update_cmd_line_hints (Window w, Atom property, 
+									struct ASDatabase * db, ASHints *hints, ASStatusHints *status );
+void update_cmd_line_hints (Window w, Atom property,
 					   ASHints * hints, ASStatusHints * status);
 
 void check_hints_sanity (struct ScreenInfo * scr, ASHints * clean, ASStatusHints * status, Window client);
@@ -293,7 +296,7 @@ Bool compare_names( ASHints *old, ASHints *hints );
 ASFlagType compare_hints( ASHints *old, ASHints *hints );
 ASFlagType function2mask( int function );
 void constrain_size ( ASHints *hints, ASStatusHints *status,
-                 	  int max_width, int max_height );
+					  int max_width, int max_height );
 void get_gravity_offsets (ASHints *hints, int *xp, int *yp);
 int translate_asgeometry( struct ScreenInfo *scr, ASGeometry *asg, int *px, int *py, unsigned int *pwidth, unsigned int *pheight );
 void real2virtual (ASStatusHints *status, int *x, int *y, int vx, int vy );
@@ -310,7 +313,7 @@ char *make_client_geometry_string (struct ScreenInfo * scr, ASHints *hints, ASSt
 char *make_client_command( struct ScreenInfo *scr, ASHints *hints, ASStatusHints *status, XRectangle *anchor, int vx, int vy);
 
 Bool set_all_client_hints( Window w, ASHints *hints, ASStatusHints *status, Bool set_command );
-struct ASImage* get_client_icon_image( struct ScreenInfo * scr, ASHints *hints );
+struct ASImage* get_client_icon_image( struct ScreenInfo * scr, ASHints *hints, int desired_size);
 CARD32 set_hints_window_opacity_percent( ASHints *clean, int opaque_percent );
 
 

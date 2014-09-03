@@ -193,6 +193,17 @@ MyStyle "*aterm"
 	BackGradient   6 Inactive2Light  alpha(50,Inactive2Dark)
 ~MyStyle
 
+#----------ASMount MyStyles---------#
+
+MyStyle "*ASMountMounted"
+		Inherit      "sticky_window_style"
+   	Font 	       DefaultSansBold.ttf-9
+ ~MyStyle
+
+MyStyle "*ASMountUnmounted"
+		Inherit      "unfocused_window_style"
+   	Font 	       DefaultSans.ttf-9
+ ~MyStyle
 
 #----------iconized window  Button MyStyles---------#
 
@@ -371,6 +382,15 @@ TitleButtonBalloonYOffset	10
 TitleButtonBalloonDelay		200
 TitleButtonBalloonCloseDelay	2000
 TitleButtonBalloonStyle 	"TitleButtonBalloon"
+
+MenuBalloons
+MenuBalloonBorderHilite	Right,Bottom
+MenuBalloonXOffset	100
+MenuBalloonYOffset	-50
+MenuBalloonDelay		2000
+MenuBalloonCloseDelay	10000
+MenuBalloonStyle 	"menu_hilite_style"
+
 
 
 
