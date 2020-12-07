@@ -1,0 +1,1 @@
+The official AfterStep repository has moved. Please clone from https://github.com/afterstep/afterstep instead of from this repository. Open issues in this repository will be addressed (issues 1-3), new issues need to be reported in the official AfterStep repository. Once open issues have been addressed, this repository will be deleted.
